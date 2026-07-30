@@ -15,10 +15,11 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-22C55E?style=flat-square)](LICENSE)
 ![Status](https://img.shields.io/badge/Status-Production_Ready-brightgreen?style=flat-square)
 ![Documentation](https://img.shields.io/badge/Documentation-11_Guides-blueviolet?style=flat-square)
+![Case Studies](https://img.shields.io/badge/Real--World_Cases-1_Complete-0EA5E9?style=flat-square)
 ![Scripts](https://img.shields.io/badge/PowerShell_Scripts-11-orange?style=flat-square)
 ![Platform](https://img.shields.io/badge/Platform-Windows_10_|_11_|_Server-informational?style=flat-square)
 
-[🚀 Quick Start](#-quick-start) • [📚 Documentation](#-documentation-library) • [⚙️ Scripts](#️-powershell-toolkit) • [🧰 Runbook](docs/11-helpdesk-runbook.md) • [🤝 Contributing](CONTRIBUTING.md)
+[🚀 Quick Start](#-quick-start) • [📚 Documentation](#-documentation-library) • [🧪 Case Studies](#-real-world-case-studies) • [⚙️ Scripts](#️-powershell-toolkit) • [🧰 Runbook](docs/11-helpdesk-runbook.md) • [🤝 Contributing](CONTRIBUTING.md)
 
 </div>
 
@@ -27,19 +28,21 @@
 > [!IMPORTANT]
 > This repository is designed for **IT Support**, **Service Desk**, **Desktop Support**, **System Administrators**, and Windows Server lab environments managing network printers through **Active Directory, Group Policy, Print Management and PowerShell**.
 
-A practical field guide and PowerShell toolkit for managing printers in an Active Directory environment.
+A practical field guide, troubleshooting knowledge base and PowerShell toolkit for managing printers in an Active Directory environment.
 
 This repository covers the complete printer lifecycle:
 
-- Install and configure print servers.
+- Install and configure Windows print servers.
 - Add TCP/IP ports, drivers, print queues and shared printers.
 - Publish printers in Active Directory.
 - Deploy printers with Group Policy.
 - Add or remove printers from user computers.
 - Migrate queues between print servers.
 - Troubleshoot network printing, spooler, driver, GPO, permissions and Point and Print issues.
-- Collect evidence for escalation.
+- Diagnose direct-IP, WSD and vendor-driver behaviour.
+- Collect evidence for escalation and root-cause analysis.
 - Audit printer inventory and stale queues with PowerShell.
+- Document real-world incidents with symptoms, investigation, resolution and lessons learned.
 
 ## 🗂️ Repository Structure
 
@@ -47,10 +50,12 @@ This repository covers the complete printer lifecycle:
 active-directory-printer-troubleshooting/
 ├── README.md
 ├── CONTRIBUTING.md
-├── docs/                  # 11 detailed administration guides
-├── scripts/               # 11 PowerShell utilities
-├── templates/             # Change, incident and inventory templates
-└── images/                # Repository branding
+├── Case Studies/           # Detailed incidents based on real troubleshooting
+│   └── Case-01-Ghost-Kyocera-Printer.md
+├── docs/                   # 11 detailed administration guides
+├── scripts/                # 11 PowerShell utilities
+├── templates/              # Change, incident and inventory templates
+└── images/                 # Repository branding
 ```
 
 ## 🧭 Fast Troubleshooting Flow
@@ -93,7 +98,7 @@ cd active-directory-printer-troubleshooting
 ```
 
 > [!CAUTION]
-> Run destructive or service-impacting scripts with **`-WhatIf`** first. Review active jobs and business impact before restarting the Print Spooler or deleting queues, ports, drivers or spool files.
+> Run destructive or service-impacting scripts with **`-WhatIf`** first. Review active jobs and business impact before restarting the Print Spooler or deleting queues, ports, drivers, driver packages or spool files.
 
 ## 📚 Documentation Library
 
@@ -110,6 +115,47 @@ cd active-directory-printer-troubleshooting
 | 09 | [⚡ PowerShell Administration](docs/09-powershell-administration.md) | Inventory, bulk changes, remote administration and testing |
 | 10 | [🧪 Real-World Scenarios](docs/10-real-world-scenarios.md) | Seven practical enterprise troubleshooting scenarios |
 | 11 | [🎧 Helpdesk Incident Runbook](docs/11-helpdesk-runbook.md) | Triage, evidence collection, escalation and closure notes |
+
+## 🧪 Real-World Case Studies
+
+The **Case Studies** section documents incidents encountered in real support work. Each case aims to show not only the final fix, but also the reasoning process, misleading symptoms, commands used, evidence collected, risk controls and lessons learned.
+
+| Case | Incident | Environment | Key Finding | Status |
+|---:|---|---|---|---|
+| 01 | [👻 Ghost Kyocera Printer Reappears After Deletion](Case%20Studies/Case-01-Ghost-Kyocera-Printer.md) | Domain-joined Windows client, direct TCP/IP Kyocera printer | The local Kyocera driver stack was the effective cause domain; removing the unused driver stopped recurrence | ✅ Complete |
+
+### Case 01 at a Glance
+
+A Kyocera printer installed directly by IP returned within seconds after being deleted. The printer remained visible in Windows **Printers & scanners**, but neither `Get-Printer` nor `Win32_Printer` returned it. Because the machine was domain joined, GPO was initially suspected. Investigation showed no intentional print-server deployment, and removing the Kyocera driver stopped the printer from returning.
+
+The detailed case includes:
+
+- Environment and incident timeline.
+- Why the GUI and PowerShell displayed different results.
+- GPO, logon-script and deployment checks.
+- Registry, printer-port and driver inspection.
+- PrintService event-log collection.
+- Safe driver and port removal procedures.
+- Root-cause qualifications based on available evidence.
+- Validation after spooler restart, sign-in, policy refresh and reboot.
+- Evidence-collection script and ticket closure notes.
+- Mermaid troubleshooting decision tree.
+
+➡️ **[Read the complete Kyocera case study](Case%20Studies/Case-01-Ghost-Kyocera-Printer.md)**
+
+### Planned Case Studies
+
+| Planned Case | Topic |
+|---:|---|
+| 02 | Printer repeatedly mapped by Group Policy Preferences |
+| 03 | Print Spooler crashes after a third-party driver update |
+| 04 | Stale Driver Store package prevents clean reinstallation |
+| 05 | TCP/IP printer shows Offline because of SNMP status mismatch |
+| 06 | WSD printer changes ports after DHCP address changes |
+| 07 | Shared printer fails after Point and Print hardening |
+| 08 | User can see a printer but receives Access Denied when connecting |
+| 09 | Old print server remains mapped after a migration |
+| 10 | RDP redirected printers create duplicate queues |
 
 ## ⚙️ PowerShell Toolkit
 
@@ -129,6 +175,34 @@ See the complete [Scripts Catalogue](scripts/README.md).
 | `Export-PrintServerConfig.ps1` | Back up print server configuration |
 | `Import-PrintServerConfig.ps1` | Restore or migrate exported configuration |
 
+## 🔎 Quick Diagnostic Commands
+
+```powershell
+# Enumerate queues
+Get-Printer | Format-Table Name, DriverName, PortName, Type -AutoSize
+
+# Compare with the CIM printer provider
+Get-CimInstance Win32_Printer |
+    Format-Table Name, DriverName, PortName, Network, Local -AutoSize
+
+# Review ports
+Get-PrinterPort |
+    Format-Table Name, PrinterHostAddress, PortNumber, SNMPEnabled -AutoSize
+
+# Review drivers
+Get-PrinterDriver |
+    Format-Table Name, Manufacturer, MajorVersion, InfPath -AutoSize
+
+# Test direct-IP printing connectivity
+Test-NetConnection -ComputerName 10.20.30.40 -Port 9100
+
+# Create a policy report
+gpresult /h C:\Windows\Temp\Printer-GPResult.html /f
+```
+
+> [!TIP]
+> When a printer is visible in Settings but absent from `Get-Printer`, compare queue data with CIM, registry, PnP devices, driver packages, WSD discovery and vendor utilities. Do not assume the GUI item is a healthy spooler queue.
+
 ## 🏷️ Recommended Naming Standard
 
 ```text
@@ -145,7 +219,47 @@ Examples: `ADL-L2-MFP01`, `ADL-RECEPTION-PRN01`, `MEL-WH-LABEL02`.
 
 ## 🛡️ Supported Approach
 
-This project favours **least privilege**, **signed vendor-supported drivers**, **approved Point and Print servers**, **change control**, **evidence collection before destructive actions**, and **repeatable PowerShell automation**.
+This project favours:
+
+- Least privilege.
+- Signed and vendor-supported drivers.
+- Approved Point and Print servers.
+- Standardised printer naming and IP management.
+- Change control for queue, port and driver changes.
+- Evidence collection before destructive actions.
+- Safe use of `-WhatIf` and explicit confirmation.
+- Repeatable PowerShell automation.
+- Root-cause statements that do not exceed the available evidence.
+
+## 🗺️ Repository Roadmap
+
+- Expand the real-world case-study library.
+- Add vendor-specific guidance for Kyocera, HP, Canon, Brother and Zebra.
+- Add Microsoft Universal Print and Intune deployment scenarios.
+- Add printer-security and PrintNightmare hardening verification.
+- Add driver-version audit and unsupported-driver reporting.
+- Add a client-side ghost-printer evidence collector.
+- Add screenshots and lab diagrams to each case.
+
+## 🤝 Contributing
+
+Contributions, issue reports and additional real-world scenarios are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) before submitting changes.
+
+When documenting a new incident, use this structure:
+
+```text
+Incident Summary
+Environment
+Symptoms
+Investigation
+Commands and Evidence
+Root Cause
+Resolution
+Validation
+Preventive Actions
+Lessons Learned
+Ticket Closure Notes
+```
 
 ## 📄 License
 
